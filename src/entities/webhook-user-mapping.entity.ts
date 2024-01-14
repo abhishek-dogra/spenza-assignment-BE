@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { WebhookEntity } from './webhook.entity';
 
@@ -18,8 +20,8 @@ export class WebhookUserMappingEntity {
   @Column({ name: 'webhook_id' })
   webhookId: number;
 
-  @Column('jsonb', { name: 'source_url', default: [] })
-  sourceUrl: string[];
+  @Column({ name: 'source_url' })
+  sourceUrl: string;
 
   @Column({ name: 'active' })
   active: boolean;
@@ -34,15 +36,23 @@ export class WebhookUserMappingEntity {
   @JoinColumn({ name: 'webhook_id', referencedColumnName: 'id' })
   webhook: WebhookEntity;
 
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
   constructor(
     userId: string,
     webhookId: number,
-    sourceUrl: string[],
+    sourceUrl: string,
+    retryCount: number,
     active: boolean,
   ) {
     this.userId = userId;
     this.webhookId = webhookId;
     this.sourceUrl = sourceUrl;
+    this.retryCount = retryCount;
     this.active = active;
   }
 }

@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
+import { CommonService } from "./common.service";
 @Injectable()
 export class UserService {
   constructor(
@@ -13,6 +13,7 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private commonService:CommonService
   ) {}
 
   getHello(): string {
@@ -53,5 +54,12 @@ export class UserService {
 
   async findUserFromId(id: string) {
     return await this.userRepository.findOne({ where: { id: id } });
+  }
+
+  generateUserAuthKey(userId: string) {
+    const authKeySecret = this.configService.get<string>('AUTH_KEY_SECRET');
+    const epochTime = new Date().getTime();
+    const authKeyString = `${epochTime}_${userId}`;
+    return this.commonService.encrypt(authKeyString, authKeySecret);
   }
 }

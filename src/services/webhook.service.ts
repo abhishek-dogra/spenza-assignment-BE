@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { WebhookEntity } from '../entities/webhook.entity';
 import { UserEntity } from '../entities/user.entity';
 import { WebhookUserMappingEntity } from '../entities/webhook-user-mapping.entity';
@@ -14,31 +14,32 @@ export class WebhookService {
     @InjectRepository(WebhookUserMappingEntity)
     private readonly webhookUserMappingRepository: Repository<WebhookUserMappingEntity>,
     @InjectRepository(WebhookUsageLogEntity)
-    private readonly webhookUsageLogRepository: Repository<WebhookUsageLogEntity>, // private eventEmitter: EventEmitter2,
+    private readonly webhookUsageLogRepository: Repository<WebhookUsageLogEntity>,
   ) {}
 
   async getWebhooksList(): Promise<WebhookEntity[]> {
-    return await this.webhookRepository.find();
+    return await this.webhookRepository.find({ order: { id: 'asc' } });
   }
 
   async createUserWebhookMapping(
     user: UserEntity,
     webhook: WebhookEntity,
     userWebhookMapping: WebhookUserMappingEntity,
-    sourceUrl: string[],
+    sourceUrl: string,
+    retryCount: number,
   ) {
-    let webhookUserMapping: WebhookUserMappingEntity = null;
+    let webhookUserMapping: WebhookUserMappingEntity;
     if (userWebhookMapping == null) {
       webhookUserMapping = new WebhookUserMappingEntity(
         user.id,
         webhook.id,
         sourceUrl,
+        retryCount,
         true,
       );
     } else {
       webhookUserMapping = userWebhookMapping;
       webhookUserMapping.active = true;
-      webhookUserMapping.sourceUrl = sourceUrl;
     }
     return this.webhookUserMappingRepository.save(webhookUserMapping);
   }
@@ -51,16 +52,23 @@ export class WebhookService {
     return await this.webhookUserMappingRepository.find({
       where: { userId: userId, active: true },
       relations: ['webhook'],
+      order: { createdAt: 'asc' },
     });
   }
 
   async getWebhookByName(name: string) {
-    return await this.webhookRepository.findOne({ where: { name: name } });
+    return await this.webhookRepository.findOne({
+      where: { name: name },
+    });
   }
 
-  async getWebhookUserMappingByWebhookIdAndUserId(id: number, userId: string) {
+  async getWebhookUserMappingByWebhookIdAndUserId(
+    id: number,
+    sourceUrl: string,
+    userId: string,
+  ) {
     return await this.webhookUserMappingRepository.findOne({
-      where: { webhookId: id, userId: userId },
+      where: { webhookId: id, sourceUrl: ILike(sourceUrl), userId: userId },
     });
   }
 
@@ -78,6 +86,7 @@ export class WebhookService {
     return await this.webhookUsageLogRepository.find({
       where: { webhookUser: { userId: userId } },
       relations: ['webhookUser', 'webhookUser.webhook'],
+      order: { timestamp: 'desc' },
     });
   }
 

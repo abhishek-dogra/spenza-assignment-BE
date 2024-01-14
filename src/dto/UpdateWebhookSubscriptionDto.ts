@@ -1,10 +1,10 @@
 import {
   IsBoolean,
+  IsInt,
   IsNotEmpty,
   IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+  IsUUID, Min
+} from "class-validator";
 
 export class UpdateWebhookSubscriptionDto {
   @IsNotEmpty()
@@ -12,8 +12,9 @@ export class UpdateWebhookSubscriptionDto {
   webhookUserId: string;
 
   @IsOptional()
-  @IsString({ each: true })
-  sourceUrls: string[];
+  @IsInt()
+  @Min(0)
+  retryCount: number;
 
   @IsOptional()
   @IsBoolean()

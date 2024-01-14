@@ -1,14 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
+  Headers,
   HttpCode,
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { UserLoginDto } from '../dto/UserLogin.dto';
 import { UserSignupDto } from '../dto/UserSignup.dto';
+import { TokenGuard } from '../guards/token.guard';
 
 @Controller('user')
 export class UserController {
@@ -53,5 +57,19 @@ export class UserController {
       signupRequest.password,
     );
     return { name: user.name, email: user.email };
+  }
+
+  @UseGuards(TokenGuard)
+  @Get('auth-key')
+  async getAuthKey(@Headers('user-id') userId: string) {
+    const user = await this.userService.findUserFromId(userId);
+    if (user == null) {
+      throw new HttpException(
+        { message: 'User not found' },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const authKey = this.userService.generateUserAuthKey(userId);
+    return { authKey: authKey };
   }
 }

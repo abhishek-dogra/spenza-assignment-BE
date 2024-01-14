@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 import { Type } from 'class-transformer';
 
 export class SubscribeWebhookDto {
@@ -8,6 +8,11 @@ export class SubscribeWebhookDto {
   webhookId: number;
 
   @IsNotEmpty()
-  @IsString({ each: true })
-  sourceUrls: string[];
+  @IsString()
+  sourceUrl: string;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  retryCount: number;
 }

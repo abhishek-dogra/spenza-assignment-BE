@@ -14,6 +14,7 @@ import { WebhookUserMappingEntity } from './entities/webhook-user-mapping.entity
 import { WebhookUsageLogEntity } from './entities/webhook-usage-log.entity';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EventProcessListener } from './listener/eventProcess.listener';
+import { CommonService } from "./services/common.service";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { EventProcessListener } from './listener/eventProcess.listener';
           WebhookUserMappingEntity,
           WebhookUsageLogEntity,
         ],
+        logging: true,
       }),
       inject: [ConfigService],
     }),
@@ -46,6 +48,6 @@ import { EventProcessListener } from './listener/eventProcess.listener';
     JwtModule.register({}),
   ],
   controllers: [AppController, WebhookController, UserController],
-  providers: [AppService, WebhookService, UserService, EventProcessListener],
+  providers: [AppService, WebhookService, UserService, EventProcessListener,CommonService],
 })
 export class AppModule {}

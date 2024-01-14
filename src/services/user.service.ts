@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CommonService } from "./common.service";
+import { CommonService } from './common.service';
 @Injectable()
 export class UserService {
   constructor(
@@ -13,7 +13,7 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private commonService:CommonService
+    private commonService: CommonService,
   ) {}
 
   getHello(): string {

@@ -62,10 +62,11 @@ id uuid NOT NULL DEFAULT gen_random_uuid(),
 user_id uuid NOT NULL,
 webhook_id int8 NOT NULL,
 active bool NOT NULL,
-source_url jsonb NULL,
+source_url varchar NULL,
 retry_count int4 NULL,
-CONSTRAINT webhook_user_pk PRIMARY KEY (id),
-CONSTRAINT webhook_user_un UNIQUE (user_id, webhook_id)
+created_at timestamp NOT NULL DEFAULT now(),
+updated_at timestamp NOT NULL DEFAULT now(),
+CONSTRAINT webhook_user_pk PRIMARY KEY (id)
 );
 ```
 
